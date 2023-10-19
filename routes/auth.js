@@ -90,7 +90,7 @@ router.post("/login", (req, res, next) => {
         const { _id, email, userName } = foundUser;
 
         // Create an object that will be set as the token payload
-        const payload = { _id, email, userName };
+        const payload = { _id, email, userName};
 
         // Create and sign the token
         const authToken = jwt.sign(payload, process.env.SECRET, {
