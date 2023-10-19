@@ -13,7 +13,11 @@ const userSchema = new Schema(
       required: true,
       unique: true,
     },
-    img: String,
+    img: {
+      type: String,
+      default:
+        "https://cvhrma.org/wp-content/uploads/2015/07/default-profile-photo.jpg",
+    },
     children: [{ type: Schema.Types.ObjectId, ref: "Child" }],
   },
   {
