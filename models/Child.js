@@ -20,9 +20,9 @@ const childSchema = new Schema(
         "https://cvhrma.org/wp-content/uploads/2015/07/default-profile-photo.jpg",
     },
 
-    events: [{ type: Schema.Types.ObjectId, ref: "Event" }],
+    events: [ { type: Schema.Types.ObjectId, ref: "Event" } ],
   },
-  
+
   {
     timestamps: true,
   }
