@@ -26,7 +26,6 @@ router.get('/profile', isAuthenticated, (req, res, next) => {
 
 });
 
-
 //Check
 
 router.post('/update', isAuthenticated, (req, res, next) =>{
@@ -34,14 +33,19 @@ router.post('/update', isAuthenticated, (req, res, next) =>{
 
   User.findByIdAndUpdate(_id, req.body, { new: true })
     .then((updatedUser) => {
-      // if (!updatedUser) {
-      //   return res.status(404).json({})
-      // }
+      const {_id, email, img, userName, children } = updatedUser;
+      const user = { _id, userName, email, img, children };
+      const authToken = jwt.sign(user, process.env.SECRET, {
+        algorithm: "HS256",
+        expiresIn: "6h",
+      })
 
-      const { userName, email, img, children } = updatedUser;
-      const user = { userName, email, img, children };
+      res.json({ user, authToken });
 
-      res.json(user);
+      // const authToken = jwt.sign(payload, process.env.SECRET,
+      //   {algorithm:'HS256', expiresIn:"6h"})
+
+      // res.status(200).json({authToken:authToken, user:payload})
     })
     .catch((err) =>{
       console.log(err);
