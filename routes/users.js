@@ -42,7 +42,7 @@ router.post('/update', isAuthenticated, (req, res, next) =>{
 
       res.json({ user, authToken });
 
-      // const authToken = jwt.sign(payload, process.env.SECRET,
+      // const authToken = jwt.sign(payload, process.env.SECRET,  // [payload is the new user info]
       //   {algorithm:'HS256', expiresIn:"6h"})
 
       // res.status(200).json({authToken:authToken, user:payload})
