@@ -2,7 +2,7 @@ const { Schema, model } = require("mongoose");
 
 const childSchema = new Schema(
   {
-    parent: { type: { type: Schema.Types.ObjectId, ref: "User" } },
+    parent: { type: Schema.Types.ObjectId, ref: "User" },
 
     name: {
       type: String,
