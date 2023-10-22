@@ -12,6 +12,7 @@ router.get('/profile', isAuthenticated, (req, res, next) => {
   const { _id } = req.user
 
   User.findById(_id)
+    .populate('children')
     .then((foundUser) => {
       const { userName, email, img, children } = foundUser
 

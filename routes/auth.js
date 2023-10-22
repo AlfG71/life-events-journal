@@ -20,11 +20,11 @@ router.post("/signup", (req, res, next) => {
   }
 
   // Use regex to validate the email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-  if (!emailRegex.test(email)) {
-    res.status(400).json({ message: "Provide a valid email address." });
-    return;
-  }
+  // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  // if (!emailRegex.test(email)) {
+  //   res.status(400).json({ message: "Provide a valid email address." });
+  //   return;
+  // }
 
   // Check the users collection if a user with the same email already exists
   User.findOne({ email })
@@ -45,13 +45,21 @@ router.post("/signup", (req, res, next) => {
         .then((createdUser) => {
           // Deconstruct the newly created user object to omit the password
           // We should never expose passwords publicly
-          const { email, userName, _id } = createdUser;
+          const { email, userName, _id, img, children } = createdUser;
 
           // Create a new object that doesn't expose the password
-          const user = { email, userName, _id };
+          const user = { email, userName, _id, img, children };
+
+          //Creating object to be set as the token payload
+          const payload = { _id, email, userName, img, children };
+
+          const authToken = jwt.sign(payload, process.env.SECRET, {
+            algorithm: "HS256",
+            expiresIn: "6h",
+          })
 
           // Send a json response containing the user object
-          res.status(201).json({ user });
+          res.status(201).json({ authToken });
         })
         .catch((err) => {
           console.log(err);
