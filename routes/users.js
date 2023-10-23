@@ -52,7 +52,7 @@ router.post('/update', isAuthenticated, (req, res, next) =>{
     });
 });
 
-router.delete('/delete', (req, res, next) => {
+router.delete('/delete', isAuthenticated, (req, res, next) => {
   const { _id } = req.user;
 
   User.findByIdAndDelete(_id)
