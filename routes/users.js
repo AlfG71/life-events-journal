@@ -44,16 +44,25 @@ router.post('/update', isAuthenticated, (req, res, next) =>{
       console.log("Updated User ===>", user)
       res.json({ user, authToken });
 
-      // const authToken = jwt.sign(payload, process.env.SECRET,  // [payload is the new user info]
-      //   {algorithm:'HS256', expiresIn:"6h"})
-
-      // res.status(200).json({authToken:authToken, user:payload})
     })
     .catch((err) =>{
       console.log(err);
       res.json(err);
       next(err);
     });
+});
+
+router.delete('/delete', (req, res, next) => {
+  const { _id } = req.user;
+
+  User.findByIdAndDelete(_id)
+    .then((deleted) =>
+      res.json({
+        deleted,
+        message: `User has been removed successfully.`,
+      })
+    )
+    .catch((error) => res.json(error));
 });
 
 
