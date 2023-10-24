@@ -41,7 +41,7 @@ router.post('/update', isAuthenticated, (req, res, next) =>{
         expiresIn: "6h",
       })
 
-      console.log("Updated User ===>", user)
+      // console.log("Updated User ===>", user)
       res.json({ user, authToken });
 
     })
