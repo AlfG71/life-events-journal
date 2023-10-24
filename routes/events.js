@@ -3,14 +3,18 @@ var router = express.Router();
 
 const Child = require('../models/Child');
 const LifeEvent = require('../models/LifeEvent');
+const isAuthenticated = require('../middleware/isAuthenticated');
+const User = require('../models/User');
 
 // Create an event
-router.post('/create/:childId', (req, res, next) => {
+router.post('/create/:childId', isAuthenticated, (req, res, next) => {
   const { childId } = req.params;
+  const { _id }  = req.user;
 
   const { eventTitle, date, description, img } = req.body;
 
   console.log(childId)
+
   LifeEvent.create({
       child: childId,
       eventTitle,
@@ -24,7 +28,14 @@ router.post('/create/:childId', (req, res, next) => {
       })
     })
     .then((child) => {
-      res.status(201).json("Event created")
+      return  User.findById(_id)
+      .populate({
+        path: 'children',
+        populate: {path: 'events'}
+      })
+    })
+    .then((user) => {
+      res.status(201).json({user, msg: "Event created"})
     })
     .catch((err) => {
     console.log(err);
