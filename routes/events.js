@@ -66,13 +66,14 @@ router.get('/event/:childId/:eventId', (req, res, next) => {
   const { childId, eventId } = req.params;
 
   Child.findById(childId)
+    .populate('children')
     .then(() => {
       LifeEvent.findById(eventId)
         .then((foundEvent) => {
-          console.log(foundEvent)
+          console.log("foudn Event ===>", foundEvent)
           const { date, description, img } = foundEvent;
           const eventInfo = { date, description, img };
-
+          console.log("Response Info ===> ", res)
           res.json(eventInfo)
         })
         .catch((err) => {

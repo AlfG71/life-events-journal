@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/User");
+const Child = require("../models/Child")
 
 const isAuthenticated = require('../middleware/isAuthenticated');
 
@@ -121,7 +122,8 @@ router.get('/verify', isAuthenticated, async (req, res, next) => {       // <== 
     // If JWT token is valid the payload gets decoded by the
     // isAuthenticated middleware and made available on `req.payload`
     // console.log("req.user", req.user);  // debug
-    const user = await User.findById(req.user._id).populate("children")
+    const user = await User.findById(req.user._id).populate({ path: "children", populate: {path: "events" }})
+    // const child = await Child.findById(user.children._id).populate()
     // Send back the object with user data
     // previously set as the token payload
     res.status(200).json(user);
