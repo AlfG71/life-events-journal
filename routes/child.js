@@ -98,16 +98,29 @@ router.post('/edit-child/:childId', isAuthenticated, (req, res, next) => {
 
 
 
-router.delete('/delete/:childId', (req, res, next) => {
+router.delete('/delete/:childId', isAuthenticated, (req, res, next) => {
   const { childId } = req.params;
 
-  Child.findByIdAndDelete(childId)
-    .then((deleted) =>
-      res.json({
-        deleted,
-        message: `Child with ${childId} is removed successfully.`,
-      })
-    )
+  Child.findByIdAndDelete(childId)   
+  .then((deleted) => {
+    console.log("Deleted child", deleted)
+    User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $pull: {children: childId}
+      },
+      { new: true}
+    ).then((updatedUser) => {
+      const { _id, userName, img, email, children } = updatedUser;
+      const user = { _id, userName, img, email, children };
+      const authToken = jwt.sign(user, process.env.SECRET, {
+        algorithm: "HS256",
+        expiresIn: "6h",
+      });
+
+      res.json({ user, authToken });
+    })
+  })
     .catch((error) => res.json(error));
 });
 
