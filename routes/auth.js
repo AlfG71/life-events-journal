@@ -83,6 +83,7 @@ router.post("/login", (req, res, next) => {
 
   // Check the users collection if a user with the same email exists
   User.findOne({ email })
+    .populate('children')
     .then((foundUser) => {
       if (!foundUser) {
         // If the user is not found, send an error response

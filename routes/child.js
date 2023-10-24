@@ -40,6 +40,7 @@ router.get('/profile/:childId', (req, res, next) => {
   const childId  = req.params.childId
 
   Child.findById(childId)
+    .populate('user')
     .then((foundChild) => {
       const { name, dateOfBirth, img, events } = foundChild
 
@@ -51,22 +52,42 @@ router.get('/profile/:childId', (req, res, next) => {
       res.json(err)
       next(err)
     })
-
-  // res.json(childId)
-
 });
 
 
 
-router.post('/edit-child/:childId', (req, res, next) => {
+router.post('/edit-child/:childId', isAuthenticated, (req, res, next) => {
   const { childId } = req.params;
+
+  console.log("Child ===>", childId, req.body)
 
   Child.findByIdAndUpdate( childId, req.body, {new: true })
     .then((foundChild) => {
-     const { name, dateOfBirth, img, events } = foundChild
+      console.log("Updated Child===>", foundChild)
+      // const { name, dateOfBirth, img, events } = foundChild
 
-     const child = { name, dateOfBirth, img, events }
-     res.status(201).json('child updated')
+      // const child = { name, dateOfBirth, img, events }
+
+        User.findById(req.user._id)
+          .populate('children')
+          .then((updatedUser) => {
+
+            const { _id, userName, img, email, children } = updatedUser
+
+            const user = { _id, userName, img, email, children }
+
+            const authToken = jwt.sign(user, process.env.SECRET, { // added to create persistence
+             algorithm: "HS256",
+             expiresIn: "6h",
+           });
+
+            res.status(201).json({ user, authToken })
+          })
+          .catch(err => {
+            console.log(err);
+            res.json({ error: 'Something went wrong' });
+            next(err);
+          });
     })
     .catch(err => {
       console.log(err);
