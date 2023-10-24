@@ -59,11 +59,11 @@ router.get('/profile/:childId', (req, res, next) => {
 router.post('/edit-child/:childId', isAuthenticated, (req, res, next) => {
   const { childId } = req.params;
 
-  console.log("Child ===>", childId, req.body)
+  // console.log("Child ===>", childId, req.body)
 
   Child.findByIdAndUpdate( childId, req.body, {new: true })
     .then((foundChild) => {
-      console.log("Updated Child===>", foundChild)
+      // console.log("Updated Child===>", foundChild)
       // const { name, dateOfBirth, img, events } = foundChild
 
       // const child = { name, dateOfBirth, img, events }
@@ -101,7 +101,7 @@ router.post('/edit-child/:childId', isAuthenticated, (req, res, next) => {
 router.delete('/delete/:childId', isAuthenticated, (req, res, next) => {
   const { childId } = req.params;
 
-  Child.findByIdAndDelete(childId)   
+  Child.findByIdAndDelete(childId)
   .then((deleted) => {
     console.log("Deleted child", deleted)
     User.findByIdAndUpdate(
@@ -110,7 +110,9 @@ router.delete('/delete/:childId', isAuthenticated, (req, res, next) => {
         $pull: {children: childId}
       },
       { new: true}
-    ).then((updatedUser) => {
+    )
+    .populate('children')
+    .then((updatedUser) => {
       const { _id, userName, img, email, children } = updatedUser;
       const user = { _id, userName, img, email, children };
       const authToken = jwt.sign(user, process.env.SECRET, {
