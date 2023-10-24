@@ -49,6 +49,7 @@ router.get('/all/:childId', (req, res, next) => {
   const { childId } = req.params;
 
   Child.findById(childId)
+    .populate("events")
     .then((child) => {
       const { events } = child;
       res.json(events);
