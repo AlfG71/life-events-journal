@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const isAuthenticated = async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
+  console.log("Token from middleware ===>", token)
+
   if (!token || token === "null") {
     return res.status(400).json({ message: "Token not found" });
   }
