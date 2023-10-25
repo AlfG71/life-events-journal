@@ -24,7 +24,7 @@ const lifeEventSchema = new Schema(
 
       type: String,
       default:
-        "https://cvhrma.org/wp-content/uploads/2015/07/default-profile-photo.jpg",
+        "https://fetv.tv/wp-content/uploads/2017/07/event_default.png",
 
     },
 
