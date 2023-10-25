@@ -22,7 +22,7 @@ router.post('/create/:childId', isAuthenticated, (req, res, next) => {
       eventTitle,
       date,
       description,
-      img
+      img: img || undefined,
     })
     .then((newEvent) => {
      return Child.findByIdAndUpdate(childId, {
@@ -37,7 +37,11 @@ router.post('/create/:childId', isAuthenticated, (req, res, next) => {
       })
     })
     .then((user) => {
-      res.status(201).json({user, msg: "Event created"})
+      const authToken = jwt.sign(user.toJSON(), process.env.SECRET, {
+        algorithm: 'HS256',
+        expiresIn: '6h',
+      });
+      res.status(201).json({user, msg: "Event created", authToken})
     })
     .catch((err) => {
     console.log(err);
@@ -165,25 +169,51 @@ router.post('/edit/:childId/:eventId', isAuthenticated, async (req, res, next) =
 //     });
 // });
 
-router.post('/delete/:childId/:eventId', async (req, res, next) => {
-  const{ childId, eventId } = req.params;
+// delete event
 
-  try{
+router.delete('/delete/:childId/:eventId', isAuthenticated, async (req, res, next) => {
+  const { childId, eventId } = req.params;
 
+  try {
     const deletedLifeEvent = await LifeEvent.findByIdAndDelete(eventId);
 
-    const removedInChild = await Child.findByIdAndUpdate(childId, {
-      $pull:{events:eventId}
-    },
-    {new:true});
-
-    res.json({ message: "Event deleted successfully" })
-
-  }
-  catch (err) {
+    const removedInChild = await Child.findByIdAndUpdate(
+      childId,
+      {
+        $pull: { events: eventId },
+      },
+      { new: true }
+    )
+      .then((updatedChild) => {
+        User.findById(req.user._id)
+          .populate({
+            path: 'children',
+            populate: {path: 'events'}
+        })
+          .then((updatedUser) => {
+            const authToken = jwt.sign(updatedUser.toJSON(), process.env.SECRET, {
+              algorithm: "HS256",
+              expiresIn: "6h",
+            });
+            res
+              .status(202)
+              .json({ user: updatedUser, authToken });
+          })
+          .catch((err) => {
+            console.log(err);
+            res.json(err);
+            next(err);
+          });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.json(err);
+        next(err);
+      });
+  } catch (err) {
     console.error(err);
     res.json(err);
-    next(err)
+    next(err);
   }
 })
 
