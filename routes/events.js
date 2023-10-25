@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
+const jwt = require("jsonwebtoken");
+
 const Child = require('../models/Child');
 const LifeEvent = require('../models/LifeEvent');
 const isAuthenticated = require('../middleware/isAuthenticated');
