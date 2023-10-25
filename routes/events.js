@@ -91,30 +91,77 @@ router.get('/event/:childId/:eventId', (req, res, next) => {
 
 
 // edit an event
-router.post('/edit/:childId/:eventId', (req, res, next) => {
-  const{ childId, eventId } = req.params;
+router.post('/edit/:childId/:eventId', isAuthenticated, async (req, res, next) => {
+  const { childId, eventId } = req.params;
 
-  Child.findById(childId)
-    .then(() => {
-      LifeEvent.findByIdAndUpdate(eventId, req.body, { new: true })
-        .then((foundEvent) => {
-          const { date, description, img } = foundEvent;
-          const event = { date, description, img };
+  try {
 
-          res.status(202).json("Event updated Successfully!")
-        })
-        .catch((err) => {
-          console.log(err)
-          res.json(err)
-          next(err)
-        })
-    })
-    .catch((err) => {
-      console.log(err)
-      res.json(err)
-      next(err)
-    })
-})
+    const foundEvent = await LifeEvent.findByIdAndUpdate(eventId, req.body, { new: true });
+
+    const updatedChild = await Child.findById(childId).populate('events');
+
+    const updatedUser = await User.findById(req.user._id).populate('children');
+
+    const authToken = jwt.sign(updatedUser.toJSON(), process.env.SECRET, {
+      algorithm: 'HS256',
+      expiresIn: '6h',
+    });
+
+    res.status(202).json({ user: updatedUser, authToken, event: foundEvent });
+  } catch (err) {
+    console.log(err);
+    res.json({ error: 'Something went wrong' });
+    next(err);
+  }
+});
+
+
+// router.post('/edit/:childId/:eventId', isAuthenticated, (req, res, next) => {
+//   const { childId, eventId } = req.params;
+
+//   LifeEvent.findByIdAndUpdate(eventId, req.body, { new: true })
+//     .then((foundEvent) => {
+//       const { date, description, img } = foundEvent;
+//       const event = { date, description, img };
+
+//       Child.findById(childId)
+//         .populate('events')
+//         .then((updatedChild) => {
+//           const { _id, name, dateOfBirth, img, events } = updatedChild;
+
+//           const child = { _id, name, dateOfBirth, img, events };
+
+//           User.findById(req.user._id)
+//             .populate('children')
+//             .then((updatedUser) => {
+//               const { _id, userName, img, email, children } = updatedUser;
+//               const user = { _id, userName, img, email, children };
+
+//               const authToken = jwt.sign(user, process.env.SECRET, {
+//                 algorithm: 'HS256',
+//                 expiresIn: '6h',
+//               });
+
+//               res.status(202).json({ user, authToken, event: foundEvent });
+//             })
+//             .catch((err) => {
+//               console.log(err);
+//               res.json({ error: 'Something went wrong' });
+//               next(err);
+//             });
+//         })
+//         .catch((err) => {
+//           console.log(err);
+//           res.json(err);
+//           next(err);
+//         });
+//     })
+//     .catch((err) => {
+//       console.log(err);
+//       res.json(err);
+//       next(err);
+//     });
+// });
 
 router.post('/delete/:childId/:eventId', async (req, res, next) => {
   const{ childId, eventId } = req.params;
