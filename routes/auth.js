@@ -11,7 +11,7 @@ const isAuthenticated = require('../middleware/isAuthenticated');
 
 const saltRounds = 10;
 
-router.post("/signup", (req, res, next) => {
+router.post("/", (req, res, next) => {
   const { email, password, userName } = req.body;
 
   // Check if the email or password or userName is provided as an empty string
